@@ -1,0 +1,33 @@
+#Import necessary module
+import speech_recognition as sr
+import RPi.GPIO as GPIO
+
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(11, GPIO.OUT)  # Set pin 11 (GPIO17) as output
+
+# Initialize recognizer
+r = sr.Recognizer()
+r.energy_threshold = 5000  # Improve sensitivity
+r.dynamic_energy_threshold = True
+
+def LED(command):
+    if 'turn on' in command:  #Turn on LED when voice command is "turn on"
+        GPIO.output(11, GPIO.HIGH)  
+    elif 'turn off' in command:  #Turn on LED when voice command is "turn on"
+        GPIO.output(11, GPIO.LOW)   
+
+def main():
+# Use microphone as the audio source
+    with sr.Microphone() as source:
+        print("Listening...")
+        audio = r.listen(source)
+    try:
+        command = r.recognize_sphinx(audio)  #Command is what is interperated from audio 
+        print(command)  #Print command
+        LED(command.lower())  #Call LED method with command set to lower to make it not case-sensitive
+    except sr.RequestError as e:  #Catch errors 
+        print("Error: {0}".format(e))
+
+if __name__ == "__main__":
+    while True:
+        main()
